@@ -42,7 +42,7 @@ tune_results <- tune_grid(
 
 # visualization of tune results
 
-autoplot(tune_results) +
+tuning_plot <- autoplot(tune_results) +
   theme_minimal() +
   labs(title = "lasso tuning", caption = "peak auc represents best balance")
 
@@ -61,7 +61,7 @@ lasso_coefs <- lasso_fit |>
   filter(estimate != 0 & term != "(Intercept)") |>
   arrange(desc(abs(estimate)))
 
-lasso_coefs |>
+coef_plot <- lasso_coefs |>
   slice_max(abs(estimate), n = 20) |>
   ggplot(aes(x = reorder(term, estimate), y = estimate, fill = estimate > 0)) +
   geom_col() +
@@ -82,3 +82,10 @@ write_csv(final_train, "data/processed/lasso_train_data.csv.csv")
 write_csv(final_test,  "data/processed/lasso_test_data.csv")
 
 print(paste("lasso has selected", length(selected_genes), "genes for your model."))
+
+
+ggsave("plots/feature-selection/lasso_tuning_plot.png", 
+       plot = tuning_plot, width = 8, height = 6)
+
+ggsave("plots/feature-selection/lasso_coefs.png", 
+       plot = coef_plot, width = 10, height = 8)
