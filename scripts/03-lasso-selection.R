@@ -20,7 +20,7 @@ lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) |>
 
 # recipe and normalization
 
-lasso_recipe <- recipe(MGMT_status ~., data = train_data) |>
+lasso_recipe <- recipe(MGMT_status ~ ., data = train_data) |>
   update_role(patient_id, new_role = "id") |>
   step_normalize(all_predictors())
 
@@ -66,9 +66,11 @@ coef_plot <- lasso_coefs |>
   ggplot(aes(x = reorder(term, estimate), y = estimate, fill = estimate > 0)) +
   geom_col() +
   coord_flip() +
-  labs(title = "top 20 genes selected by lasso",
-       x = "gene name", y = "impact (coefficient weight)",
-       fill = "positive correlation") +
+  labs(
+    title = "top 20 genes selected by lasso",
+    x = "gene name", y = "impact (coefficient weight)",
+    fill = "positive correlation"
+  ) +
   theme_minimal()
 
 # save new datasets
@@ -76,16 +78,18 @@ coef_plot <- lasso_coefs |>
 selected_genes <- lasso_coefs$term
 
 final_train <- train_data |> select(patient_id, MGMT_status, all_of(selected_genes))
-final_test  <- test_data  |> select(patient_id, MGMT_status, all_of(selected_genes))
+final_test <- test_data |> select(patient_id, MGMT_status, all_of(selected_genes))
 
-write_csv(final_train, "data/processed/lasso_train_data.csv.csv")
-write_csv(final_test,  "data/processed/lasso_test_data.csv")
+write_csv(final_train, "data/processed/lasso_train_data.csv")
+write_csv(final_test, "data/processed/lasso_test_data.csv")
 
-print(paste("lasso has selected", length(selected_genes), "genes for your model."))
+print(paste("lasso has selected", length(selected_genes), "genes."))
 
 
-ggsave("plots/feature-selection/lasso_tuning_plot.png", 
-       plot = tuning_plot, width = 8, height = 6)
+ggsave("plots/feature-selection/lasso_tuning_plot.png",
+  plot = tuning_plot, width = 8, height = 6
+)
 
-ggsave("plots/feature-selection/lasso_coefs.png", 
-       plot = coef_plot, width = 10, height = 8)
+ggsave("plots/feature-selection/lasso_coefs.png",
+  plot = coef_plot, width = 10, height = 8
+)
