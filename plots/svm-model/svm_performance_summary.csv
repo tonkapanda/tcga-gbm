@@ -1,0 +1,4 @@
+Metric,Estimate
+accuracy,0.65
+kappa (agreement),0.2784
+roc-auc (separation power),0.7146
